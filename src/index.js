@@ -58,12 +58,15 @@ export default class Personality {
     };
 
     this.config = {
-      endpoint: config.endpoint || '',
+      endpoints: config.endpoints || '',
+      additionalRequestData: config.additionalRequestData || {},
+      additionalRequestHeaders: config.additionalRequestHeaders || {},
       field: config.field || 'image',
       types: config.types || 'image/*',
       namePlaceholder: config.namePlaceholder || 'Name',
       descriptionPlaceholder: config.descriptionPlaceholder || 'Description',
-      linkPlaceholder: config.linkPlaceholder || 'Link'
+      linkPlaceholder: config.linkPlaceholder || 'Link',
+      uploader: config.uploader || undefined
     };
 
     /**
@@ -98,12 +101,11 @@ export default class Personality {
    * @param {UploadResponseFormat} response
    */
   onUpload(response) {
-    const { body: { success, file } } = response;
-
-    if (success && file && file.url) {
-      this.data.photo = file.url;
-
+    if (response.success && response.file) {
+      Object.assign(this.data, { photo: response.file.url });
       this.showFullImage();
+    } else {
+      this.uploadingFailed('Incorrect response: ' + JSON.stringify(response));
     }
   }
 
