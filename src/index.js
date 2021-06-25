@@ -1,5 +1,5 @@
 import ToolboxIcon from './svg/toolbox.svg';
-import './index.css';
+import './index.scss';
 import Uploader from './uploader';
 
 /**
@@ -163,6 +163,7 @@ export default class Personality {
        * Tool's classes
        */
       wrapper: 'cdx-personality',
+      inputWrapper: 'cdx-personality__inputs',
       name: 'cdx-personality__name',
       photo: 'cdx-personality__photo',
       link: 'cdx-personality__link',
@@ -195,6 +196,21 @@ export default class Personality {
   }
 
   /**
+   * Check if text content is empty and set empty string to inner html.
+   * We need this because some browsers (e.g. Safari) insert <br> into empty contenteditanle elements
+   *
+   * @param {KeyboardEvent} e - key up event
+   */
+  onKeyDown(e, node) {
+    if (e.code === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      node.focus();
+      return false;
+    }
+  }
+
+  /**
    * Renders Block content
    * @return {HTMLDivElement}
    */
@@ -202,6 +218,7 @@ export default class Personality {
     const { name, description, photo, link } = this.data;
 
     this.nodes.wrapper = this.make('div', this.CSS.wrapper);
+    this.nodes.inputWrapper = this.make('div', this.CSS.inputWrapper);
 
     this.nodes.name = this.make('div', this.CSS.name, {
       contentEditable: true
@@ -247,10 +264,18 @@ export default class Personality {
       });
     });
 
+    this.nodes.name.addEventListener('keydown', (e) => {
+      this.onKeyDown(e, this.nodes.description);
+    });
+    this.nodes.description.addEventListener('keydown', (e) => {
+      this.onKeyDown(e, this.nodes.link);
+    });
+
     this.nodes.wrapper.appendChild(this.nodes.photo);
-    this.nodes.wrapper.appendChild(this.nodes.name);
-    this.nodes.wrapper.appendChild(this.nodes.description);
-    this.nodes.wrapper.appendChild(this.nodes.link);
+    this.nodes.inputWrapper.appendChild(this.nodes.name);
+    this.nodes.inputWrapper.appendChild(this.nodes.description);
+    this.nodes.inputWrapper.appendChild(this.nodes.link);
+    this.nodes.wrapper.appendChild(this.nodes.inputWrapper);
 
     return this.nodes.wrapper;
   }
